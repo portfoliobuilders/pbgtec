@@ -23,24 +23,21 @@ class _AssignmentPageState extends State<AssignmentPage> {
   String? correctAnswer;
   int marks = 2;
   List<String> choices = [];
+  String? editingAssignmentId;
 
   // Fetch assignments only for the specific module and course
   Stream<QuerySnapshot> _fetchAssignments() {
-    try {
-      return _firestore
-          .collection('courses')
-          .doc(widget.courseId)
-          .collection('modules')
-          .doc(widget.moduleId)
-          .collection('assignments')
-          .snapshots();
-    } catch (e) {
-      throw Exception('Failed to fetch assignments: $e');
-    }
+    return _firestore
+        .collection('courses')
+        .doc(widget.courseId)
+        .collection('modules')
+        .doc(widget.moduleId)
+        .collection('assignments')
+        .snapshots();
   }
 
-  // Add a new assignment to the current module
-  Future<void> _addAssignment() async {
+  // Add or update an assignment
+  Future<void> _saveAssignment() async {
     if (_questionController.text.trim().isEmpty) {
       _showError('Question cannot be empty');
       return;
@@ -57,24 +54,69 @@ class _AssignmentPageState extends State<AssignmentPage> {
     }
 
     try {
+      final assignmentData = {
+        'question': _questionController.text.trim(),
+        'choices': choices,
+        'correctAnswer': correctAnswer,
+        'marks': marks,
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      if (editingAssignmentId == null) {
+        // Add new assignment
+        await _firestore
+            .collection('courses')
+            .doc(widget.courseId)
+            .collection('modules')
+            .doc(widget.moduleId)
+            .collection('assignments')
+            .add(assignmentData);
+        _showSuccess('Assignment added successfully');
+      } else {
+        // Update existing assignment
+        await _firestore
+            .collection('courses')
+            .doc(widget.courseId)
+            .collection('modules')
+            .doc(widget.moduleId)
+            .collection('assignments')
+            .doc(editingAssignmentId)
+            .update(assignmentData);
+        _showSuccess('Assignment updated successfully');
+      }
+
+      _resetForm();
+    } catch (e) {
+      _showError('Error saving assignment: $e');
+    }
+  }
+
+  // Edit an assignment
+  void _editAssignment(DocumentSnapshot assignmentDoc) {
+    final data = assignmentDoc.data() as Map<String, dynamic>;
+    setState(() {
+      editingAssignmentId = assignmentDoc.id;
+      _questionController.text = data['question'] ?? '';
+      choices = List<String>.from(data['choices'] ?? []);
+      correctAnswer = data['correctAnswer'];
+      marks = data['marks'] ?? 2;
+    });
+  }
+
+  // Delete an assignment
+  Future<void> _deleteAssignment(String assignmentId) async {
+    try {
       await _firestore
           .collection('courses')
           .doc(widget.courseId)
           .collection('modules')
           .doc(widget.moduleId)
           .collection('assignments')
-          .add({
-        'question': _questionController.text.trim(),
-        'choices': choices,
-        'correctAnswer': correctAnswer,
-        'marks': marks,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-
-      _showSuccess('Assignment added successfully');
-      _resetForm();
+          .doc(assignmentId)
+          .delete();
+      _showSuccess('Assignment deleted successfully');
     } catch (e) {
-      _showError('Error adding assignment: $e');
+      _showError('Error deleting assignment: $e');
     }
   }
 
@@ -103,6 +145,7 @@ class _AssignmentPageState extends State<AssignmentPage> {
       choices.clear();
       correctAnswer = null;
       marks = 2;
+      editingAssignmentId = null;
     });
   }
 
@@ -179,6 +222,19 @@ class _AssignmentPageState extends State<AssignmentPage> {
                             ),
                             const SizedBox(height: 8),
                             Text('Correct Answer: ${assignmentData['correctAnswer'] ?? 'Not set'}'),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit, color: Colors.blue),
+                                  onPressed: () => _editAssignment(assignmentDoc),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () => _deleteAssignment(assignmentDoc.id),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
@@ -188,7 +244,7 @@ class _AssignmentPageState extends State<AssignmentPage> {
               },
             ),
             const SizedBox(height: 20),
-            // Form to add new assignment
+            // Form to add or edit assignment
             Card(
               margin: const EdgeInsets.all(8.0),
               child: Padding(
@@ -196,7 +252,10 @@ class _AssignmentPageState extends State<AssignmentPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Add New Assignment', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                    Text(
+                      editingAssignmentId == null ? 'Add New Assignment' : 'Edit Assignment',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    ),
                     const SizedBox(height: 10),
                     TextField(
                       controller: _questionController,
@@ -264,13 +323,10 @@ class _AssignmentPageState extends State<AssignmentPage> {
                         marks = int.tryParse(value) ?? 2;
                       }),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     ElevatedButton(
-                      onPressed: _addAssignment,
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 48),
-                      ),
-                      child: const Text('Add Assignment'),
+                      onPressed: _saveAssignment,
+                      child: Text(editingAssignmentId == null ? 'Add Assignment' : 'Update Assignment'),
                     ),
                   ],
                 ),
@@ -280,12 +336,5 @@ class _AssignmentPageState extends State<AssignmentPage> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _questionController.dispose();
-    _choiceController.dispose();
-    super.dispose();
   }
 }
