@@ -14,12 +14,10 @@ class _UserLiveViewPageState extends State<UserLiveViewPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Fetch the courses allocated to the user
   Stream<QuerySnapshot> _getUserCourses(String userId) {
     return _firestore.collection('users').doc(userId).collection('courses').snapshots();
   }
 
-  // Fetch the course name by courseId
   Future<String> _getCourseNameById(String courseId) async {
     try {
       DocumentSnapshot courseDoc = await _firestore.collection('courses').doc(courseId).get();
@@ -40,10 +38,10 @@ class _UserLiveViewPageState extends State<UserLiveViewPage> {
           title: const Text('User Allocated Courses'),
           centerTitle: true,
           elevation: 0,
-          backgroundColor: Colors.blueAccent,
+          backgroundColor: Colors.deepPurple,
         ),
         body: const Center(
-          child: Text('Please log in to see your courses', style: TextStyle(fontSize: 16)),
+          child: Text('Please log in to see your courses', style: TextStyle(fontSize: 16, color: Colors.black54)),
         ),
       );
     }
@@ -51,7 +49,12 @@ class _UserLiveViewPageState extends State<UserLiveViewPage> {
     String userId = user.uid;
 
     return Scaffold(
-    
+      appBar: AppBar(
+        title: const Text('User Allocated Courses'),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
+        elevation: 4,
+      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _getUserCourses(userId),
         builder: (context, snapshot) {
@@ -67,7 +70,7 @@ class _UserLiveViewPageState extends State<UserLiveViewPage> {
                 crossAxisCount: 2,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
-                childAspectRatio: 1.3,
+                childAspectRatio: 1.4,
               ),
               itemCount: userCourses.length,
               itemBuilder: (context, index) {
@@ -98,20 +101,24 @@ class _UserLiveViewPageState extends State<UserLiveViewPage> {
                           );
                         },
                         child: Card(
-                          elevation: 8,
+                          elevation: 4,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(15),
                           ),
                           child: Container(
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(15),
                               gradient: LinearGradient(
-                                colors: [Colors.blueAccent, Colors.purpleAccent],
+                                colors: [const Color.fromARGB(255, 58, 125, 183), const Color.fromARGB(255, 24, 129, 199)],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),
                               boxShadow: [
-                                BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 12, spreadRadius: 4)
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.15),
+                                  blurRadius: 8,
+                                  spreadRadius: 2,
+                                ),
                               ],
                             ),
                             child: Padding(
@@ -127,7 +134,6 @@ class _UserLiveViewPageState extends State<UserLiveViewPage> {
                                     textAlign: TextAlign.center,
                                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 20,
                                           color: Colors.white,
                                         ),
                                   ),
@@ -156,7 +162,6 @@ class LiveScreenUser extends StatelessWidget {
 
   const LiveScreenUser({required this.courseId, Key? key}) : super(key: key);
 
-  // Fetch live classes for the specified course
   Stream<QuerySnapshot> _getLiveClasses(String courseId) {
     return FirebaseFirestore.instance
         .collection('courses')
@@ -165,7 +170,6 @@ class LiveScreenUser extends StatelessWidget {
         .snapshots();
   }
 
-  // Method to launch URL in the browser
   Future<void> _launchZoomURL(String url) async {
     if (await canLaunch(url)) {
       await launch(url);
@@ -179,9 +183,8 @@ class LiveScreenUser extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Live Classes for Course'),
-        elevation: 10,
-        backgroundColor: Colors.blueAccent,
-        shadowColor: Colors.blue.shade400,
+        backgroundColor: Colors.blue,
+        elevation: 4,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _getLiveClasses(courseId),
@@ -193,6 +196,7 @@ class LiveScreenUser extends StatelessWidget {
           final liveClasses = snapshot.data!.docs;
 
           return ListView.builder(
+            padding: const EdgeInsets.all(16.0),
             itemCount: liveClasses.length,
             itemBuilder: (context, index) {
               final liveClass = liveClasses[index];
@@ -200,14 +204,14 @@ class LiveScreenUser extends StatelessWidget {
               final zoomUrl = liveClass['zoom_url'] ?? '';
 
               return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Card(
-                  elevation: 10,
+                  elevation: 4,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0),
+                    borderRadius: BorderRadius.circular(15.0),
                   ),
                   color: Colors.white,
-                  shadowColor: Colors.black.withOpacity(0.2),
+                  shadowColor: Colors.black.withOpacity(0.1),
                   child: ListTile(
                     contentPadding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
                     title: Text(
@@ -217,7 +221,7 @@ class LiveScreenUser extends StatelessWidget {
                     trailing: ElevatedButton(
                       onPressed: () {
                         if (zoomUrl.isNotEmpty) {
-                          _launchZoomURL(zoomUrl); // Open URL in the default browser
+                          _launchZoomURL(zoomUrl);
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('No Zoom URL available')),
@@ -225,12 +229,13 @@ class LiveScreenUser extends StatelessWidget {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0), backgroundColor: Colors.blueAccent,
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        backgroundColor: Colors.blue,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0),
                         ),
                       ),
-                      child: const Text('Join Live Class',style: TextStyle(color : Colors.white),),
+                      child: const Text('Join Live', style: TextStyle(color: Colors.white)),
                     ),
                   ),
                 ),

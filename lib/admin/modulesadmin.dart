@@ -473,194 +473,304 @@ Widget build(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
+        icon: const Icon(Icons.arrow_back, color: Colors.white),
         onPressed: () {
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => DashboardScreen()),
           );
         },
       ),
-      title: const Text('Admin Course'),
-    ),
-    body: SingleChildScrollView(  // Wrap the body with SingleChildScrollView to enable scrolling
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ElevatedButton(
-                onPressed: () => _showAddModuleDialog(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                child: const Text('Add Module'),
-              ),
-              ElevatedButton(
-                onPressed: _deleteCourse,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                child: const Text('Delete Course'),
-              ),
-
-              
-            ],
-          ),
-          const SizedBox(height: 20),
-          FutureBuilder<List<Map<String, dynamic>>>(
-            future: _fetchModules(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(child: Text('No modules available'));
-              }
-
-              final modules = snapshot.data!;
-              return DropdownButton<String>(
-                value: selectedModuleId,
-                hint: const Text('Select a Module'),
-                isExpanded: true,
-                items: modules.map((module) {
-                  return DropdownMenuItem<String>(
-                    value: module['id'],
-                    child: Text(module['name'], style: TextStyle(fontSize: 16)
-                    ),
-
-                    
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedModuleId = value;
-                    selectedModuleName = modules.firstWhere((module) => module['id'] == value)['name'];
-                  });
-                  if (value != null) {
-                    _fetchLessons(value);
-                  }
-                  
-                },
-              );
-            },
-          ),
-          const SizedBox(height: 20),
-          if (selectedModuleId != null)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ElevatedButton(
-                  onPressed: () => _showAddLessonDialog(context, selectedModuleId!),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.greenAccent,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  ),
-                  child: const Text('Create Lesson'),
-                ),
-                const SizedBox(height: 20),
-             ElevatedButton(
-  onPressed: () => _navigateToAssignmentPage(context, widget.courseId, selectedModuleId!),
-  style: ElevatedButton.styleFrom(
-    backgroundColor: Colors.greenAccent,
-    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-  ),
-  child: const Text('Create Assignment'),
-),
-     const SizedBox(height: 20),
-
-                          TextButton(
-  onPressed: () => _editModule(
-    selectedModuleId!,
-    selectedModuleName!,
-  ),
-  child: Row(
-    children: const [
-      Icon(Icons.edit, size: 18), // Add an icon for edit
-      SizedBox(width: 4), // Spacing between icon and text
-      Text("Edit Module"), // Add the label
-    ],
-  ),
-),
-TextButton(
-  onPressed: () => _deleteModule(selectedModuleId!),
-  style: TextButton.styleFrom(
-    foregroundColor: Colors.red, // Set text and icon color to red
-  ),
-  child: Row(
-    children: const [
-      Icon(Icons.delete, size: 18), // Add an icon for delete
-      SizedBox(width: 4), // Spacing between icon and text
-      Text("Delete Module"), // Add the label
-    ],
-  ),
-),
-
-                          
-
-
-                const SizedBox(height: 20),
-                if (lessons.isNotEmpty)
-                 ListView.builder(
-  shrinkWrap: true,
-  itemCount: lessons.length,
-  itemBuilder: (context, index) {
-    final lesson = lessons[index];
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+      title: const Text(
+        'Course Management',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 22,
+          letterSpacing: 0.5,
+        ),
       ),
-      elevation: 8,
-      child: ListTile(
-        title: Text(lesson['name'], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-        subtitle: Text(lesson['url'], style: const TextStyle(fontSize: 14)),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              onPressed: () => _editLesson(
-                context,
-                selectedModuleId!,
-                lesson['id'],
-                lesson['name'],
-                lesson['url'],
-              ),
-              icon: const Icon(Icons.edit, color: Colors.blue),
-            ),
-            TextButton(
-              onPressed: () => _deleteLesson(selectedModuleId!, lesson['id']),
-              child: Row(
-                children: const [
-                  Icon(Icons.delete, color: Colors.red, size: 24),
-                  SizedBox(width: 8),
-                  Text('Delete', style: TextStyle(color: Colors.red)),
-                ],
-              ),
-            ),
-
-           
+      backgroundColor:  Colors.blue, // Custom teal shade
+      elevation: 0,
+      // shape: const RoundedRectangleBorder(
+      //   borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
+      // ),
+    ),
+    body: Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            const Color.fromARGB(255, 255, 255, 255),
+            const Color.fromARGB(255, 255, 255, 255),
           ],
         ),
       ),
-    );
-  },
-),
-
-                if (lessons.isEmpty)
-                  const Text('No lessons available', style: TextStyle(fontSize: 16)),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildActionButton(
+                  onPressed: () => _showAddModuleDialog(context),
+                  icon: Icons.add_circle_outline,
+                  label: 'Add Module',
+                  color: const Color.fromARGB(255, 72, 173, 209),
+                ),
+                _buildActionButton(
+                  onPressed: _deleteCourse,
+                  icon: Icons.delete_outline,
+                  label: 'Delete Course',
+                  color: Colors.redAccent,
+                ),
               ],
             ),
-        ],
+            const SizedBox(height: 24),
+            FutureBuilder<List<Map<String, dynamic>>>(
+              future: _fetchModules(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00897B)),
+                    ),
+                  );
+                }
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return _buildEmptyState('No modules available');
+                }
+
+                final modules = snapshot.data!;
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: selectedModuleId,
+                      hint: const Text(
+                        'Select a Module',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Color(0xFF424242),
+                        ),
+                      ),
+                      isExpanded: true,
+                      icon: const Icon(Icons.arrow_drop_down_circle_outlined),
+                      items: modules.map((module) {
+                        return DropdownMenuItem<String>(
+                          value: module['id'],
+                          child: Text(
+                            module['name'],
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Color(0xFF424242),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedModuleId = value;
+                          selectedModuleName = modules
+                              .firstWhere((module) => module['id'] == value)['name'];
+                        });
+                        if (value != null) {
+                          _fetchLessons(value);
+                        }
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
+            if (selectedModuleId != null) ...[
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildActionButton(
+                      onPressed: () => _showAddLessonDialog(context, selectedModuleId!),
+                      icon: Icons.book_outlined,
+                      label: 'Create Lesson',
+                      color: Colors.blue,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildActionButton(
+                      onPressed: () => _navigateToAssignmentPage(
+                        context,
+                        widget.courseId,
+                        selectedModuleId!,
+                      ),
+                      icon: Icons.assignment_outlined,
+                      label: 'Create Assignment',
+                      color: Colors.blue,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  _buildTextButton(
+                    onPressed: () => _editModule(selectedModuleId!, selectedModuleName!),
+                    icon: Icons.edit_outlined,
+                    label: 'Edit Module',
+                    color: Colors.blue,
+                  ),
+                  const SizedBox(width: 16),
+                  _buildTextButton(
+                    onPressed: () => _deleteModule(selectedModuleId!),
+                    icon: Icons.delete_outline,
+                    label: 'Delete Module',
+                    color: Colors.red,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              if (lessons.isNotEmpty)
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: lessons.length,
+                  itemBuilder: (context, index) {
+                    final lesson = lessons[index];
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 4,
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.all(16),
+                        leading: const CircleAvatar(
+                          backgroundColor: Color(0xFF00897B),
+                          child: Icon(Icons.school, color: Colors.white),
+                        ),
+                        title: Text(
+                          lesson['name'],
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF424242),
+                          ),
+                        ),
+                        subtitle: Text(
+                          lesson['url'],
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              onPressed: () => _editLesson(
+                                context,
+                                selectedModuleId!,
+                                lesson['id'],
+                                lesson['name'],
+                                lesson['url'],
+                              ),
+                              icon: const Icon(Icons.edit_outlined),
+                              color: Colors.blue,
+                            ),
+                            IconButton(
+                              onPressed: () =>
+                                  _deleteLesson(selectedModuleId!, lesson['id']),
+                              icon: const Icon(Icons.delete_outline),
+                              color: Colors.red,
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                )
+              else
+                _buildEmptyState('No lessons available'),
+            ],
+          ],
+        ),
       ),
     ),
   );
 }
 
+Widget _buildActionButton({
+  required VoidCallback onPressed,
+  required IconData icon,
+  required String label,
+  required Color color,
+}) {
+  return ElevatedButton.icon(
+    onPressed: onPressed,
+    icon: Icon(icon, size: 20),
+    label: Text(label),
+    style: ElevatedButton.styleFrom(
+      backgroundColor: color,
+      foregroundColor: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 4,
+    ),
+  );
 }
 
+Widget _buildTextButton({
+  required VoidCallback onPressed,
+  required IconData icon,
+  required String label,
+  required Color color,
+}) {
+  return TextButton.icon(
+    onPressed: onPressed,
+    icon: Icon(icon, size: 18, color: color),
+    label: Text(
+      label,
+      style: TextStyle(color: color, fontSize: 14),
+    ),
+  );
+}
+
+Widget _buildEmptyState(String message) {
+  return Container(
+    padding: const EdgeInsets.all(32),
+    alignment: Alignment.center,
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          Icons.inbox_outlined,
+          size: 48,
+          color: Colors.grey[400],
+        ),
+        const SizedBox(height: 16),
+        Text(
+          message,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey[600],
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    ),
+  );
+}
+}

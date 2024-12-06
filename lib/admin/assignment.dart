@@ -167,12 +167,15 @@ class _AssignmentPageState extends State<AssignmentPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Assignments'),
-      ),
-      body: SingleChildScrollView(
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text('Assignments', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+      backgroundColor: Colors.blue,
+    ),
+    body: SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
         child: Column(
           children: [
             // Stream to display assignments for the selected module
@@ -180,7 +183,7 @@ class _AssignmentPageState extends State<AssignmentPage> {
               stream: _fetchAssignments(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
+                  return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.red)));
                 }
 
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -189,7 +192,7 @@ class _AssignmentPageState extends State<AssignmentPage> {
 
                 final assignments = snapshot.data?.docs ?? [];
                 if (assignments.isEmpty) {
-                  return const Center(child: Text('No assignments available.'));
+                  return const Center(child: Text('No assignments available.', style: TextStyle(fontSize: 16)));
                 }
 
                 return Column(
@@ -197,31 +200,40 @@ class _AssignmentPageState extends State<AssignmentPage> {
                     final assignmentData = assignmentDoc.data() as Map<String, dynamic>;
 
                     return Card(
-                      margin: const EdgeInsets.all(8.0),
+                      elevation: 4,
+                      margin: const EdgeInsets.symmetric(vertical: 8.0),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(16.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               'Question: ${assignmentData['question'] ?? 'No question'}',
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
                             ),
                             const SizedBox(height: 8),
-                            Text('Marks: ${assignmentData['marks'] ?? 0}'),
+                            Text('Marks: ${assignmentData['marks'] ?? 0}', style: TextStyle(fontSize: 14)),
                             const SizedBox(height: 8),
-                            Text('Choices:'),
+                            Text('Choices:', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 4),
                             Wrap(
                               spacing: 8.0,
                               children: (assignmentData['choices'] as List?)
                                       ?.map((choice) => Chip(
                                             label: Text(choice),
+                                            backgroundColor: Colors.grey[200],
+                                            padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                                           ))
                                       .toList() ??
                                   [const Text('No choices')],
                             ),
                             const SizedBox(height: 8),
-                            Text('Correct Answer: ${assignmentData['correctAnswer'] ?? 'Not set'}'),
+                            Text(
+                              'Correct Answer: ${assignmentData['correctAnswer'] ?? 'Not set'}',
+                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.green),
+                            ),
+                            const SizedBox(height: 12),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
@@ -246,7 +258,9 @@ class _AssignmentPageState extends State<AssignmentPage> {
             const SizedBox(height: 20),
             // Form to add or edit assignment
             Card(
-              margin: const EdgeInsets.all(8.0),
+              elevation: 4,
+              margin: const EdgeInsets.symmetric(vertical: 8.0),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -254,18 +268,19 @@ class _AssignmentPageState extends State<AssignmentPage> {
                   children: [
                     Text(
                       editingAssignmentId == null ? 'Add New Assignment' : 'Edit Assignment',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.deepPurple),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
                     TextField(
                       controller: _questionController,
                       decoration: const InputDecoration(
                         labelText: 'Question',
                         border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                       ),
                       maxLines: null,
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
                     Row(
                       children: [
                         Expanded(
@@ -274,17 +289,18 @@ class _AssignmentPageState extends State<AssignmentPage> {
                             decoration: const InputDecoration(
                               labelText: 'Add Choice',
                               border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                             ),
                             onSubmitted: _addChoice,
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.add),
+                          icon: const Icon(Icons.add, color: Colors.green),
                           onPressed: () => _addChoice(_choiceController.text),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
                     Wrap(
                       spacing: 8.0,
                       children: choices.map((choice) => Chip(
@@ -299,11 +315,12 @@ class _AssignmentPageState extends State<AssignmentPage> {
                         },
                       )).toList(),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
                       decoration: const InputDecoration(
                         labelText: 'Correct Answer',
                         border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                       ),
                       value: correctAnswer,
                       items: choices.map((choice) => DropdownMenuItem(
@@ -312,11 +329,12 @@ class _AssignmentPageState extends State<AssignmentPage> {
                       )).toList(),
                       onChanged: (value) => setState(() => correctAnswer = value),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
                     TextField(
                       decoration: const InputDecoration(
                         labelText: 'Marks',
                         border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                       ),
                       keyboardType: TextInputType.number,
                       onChanged: (value) => setState(() {
@@ -325,8 +343,16 @@ class _AssignmentPageState extends State<AssignmentPage> {
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        padding: EdgeInsets.symmetric(vertical: 14.0),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
                       onPressed: _saveAssignment,
-                      child: Text(editingAssignmentId == null ? 'Add Assignment' : 'Update Assignment'),
+                      child: Text(
+                        editingAssignmentId == null ? 'Add Assignment' : 'Update Assignment',
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
                     ),
                   ],
                 ),
@@ -335,6 +361,7 @@ class _AssignmentPageState extends State<AssignmentPage> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

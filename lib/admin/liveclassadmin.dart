@@ -2,9 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AdminLiveClassesPage extends StatelessWidget {
-  const AdminLiveClassesPage({Key? key}) : super(key: key);
+   AdminLiveClassesPage({Key? key}) : super(key: key);
 
-  // Function to fetch all courses
+  /// List of asset image paths to be used in course cards.
+  final List<String> assetImages = [
+   'assets/gol.png',
+    'assets/gtech.png',
+    'assets/gol.png',
+    'assets/gtech.jpg',
+  ];
+
+  /// Fetches all courses from Firestore as a stream.
   Stream<QuerySnapshot> _getCourses() {
     return FirebaseFirestore.instance.collection('courses').snapshots();
   }
@@ -12,21 +20,25 @@ class AdminLiveClassesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
+      appBar: AppBar(
+        title: const Text('Courses'),
+        centerTitle: true,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Title for the Courses section
             Text(
               'Courses',
               style: Theme.of(context)
                   .textTheme
-                  .titleLarge
+                  .headlineSmall
                   ?.copyWith(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 20),
-            // StreamBuilder to display all courses in a GridView
+            const SizedBox(height: 16),
+            // StreamBuilder to fetch and display courses
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: _getCourses(),
@@ -35,63 +47,91 @@ class AdminLiveClassesPage extends StatelessWidget {
                     return const Center(child: CircularProgressIndicator());
                   }
 
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        'Error: ${snapshot.error}',
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    );
+                  }
+
                   final courses = snapshot.data!.docs;
+                  if (courses.isEmpty) {
+                    return const Center(
+                      child: Text('No courses available.'),
+                    );
+                  }
 
                   return GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: MediaQuery.of(context).size.width > 600
-                          ? 3
-                          : 1, // Responsive layout
+                      crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 1, // Responsive layout
                       crossAxisSpacing: 16,
                       mainAxisSpacing: 16,
                       childAspectRatio: 1.5,
                     ),
                     itemCount: courses.length,
                     itemBuilder: (context, index) {
-                      final course =
-                          courses[index].data() as Map<String, dynamic>;
+                      final course = courses[index].data() as Map<String, dynamic>;
                       final courseId = courses[index].id;
                       final courseName = course['name'] ?? 'No Name';
-                      final courseDescription =
-                          course['description'] ?? 'No Description';
+                      final courseDescription = course['description'] ?? 'No Description';
+
+                      // Select an image from the list to use in the card.
+                      final imageAsset = assetImages[index % assetImages.length]; // Cycle through images
 
                       return Card(
-                        elevation: 6,
+                        elevation: 4,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: InkWell(
                           onTap: () {
-                            // Navigate to Live Classes page when course is tapped
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    LiveClassesPage(courseId: courseId),
+                                builder: (context) => LiveClassesPage(courseId: courseId),
                               ),
                             );
                           },
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  courseName,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.copyWith(fontWeight: FontWeight.bold),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Display the image in the card
+                              ClipRRect(
+                                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                                child: Image.asset(
+                                  imageAsset,
+                                  width: double.infinity,
+                                  height: 150, // Set a fixed height for the image
+                                  fit: BoxFit.cover,
                                 ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  courseDescription,
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      courseName,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge
+                                          ?.copyWith(fontWeight: FontWeight.bold),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      courseDescription,
+                                      style: Theme.of(context).textTheme.bodyMedium,
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       );
@@ -106,6 +146,7 @@ class AdminLiveClassesPage extends StatelessWidget {
     );
   }
 }
+
 
 class LiveClassesPage extends StatefulWidget {
   final String courseId;

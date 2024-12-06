@@ -6,6 +6,7 @@ import 'package:gtech/registration.dart';
 import 'package:gtech/user/liveclass.dart';
 import 'package:gtech/user/modules.dart';
 import 'package:gtech/user/usercourse.dart';
+import 'package:gtech/user/userdshboardgrapg.dart';
 import 'package:gtech/user/videosection.dart'; // Make sure these files exist and are correct
 
 class UserDashboardScreen extends StatefulWidget {
@@ -18,7 +19,7 @@ class UserDashboardScreen extends StatefulWidget {
 }
 
 class _UserDashboardScreenState extends State<UserDashboardScreen> {
-  String selectedContent = 'Course Content';
+  String selectedContent = 'Dashboard';
   TextEditingController searchController = TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -143,6 +144,10 @@ class Sidebar extends StatelessWidget {
                 ),
               ),
             ),
+            SizedBox(height: 20),
+            Divider(),
+
+            Bottoms(onMenuItemSelected: onMenuItemSelected, isLargeScreen: isLargeScreen)
           ],
         ),
       ),
@@ -165,107 +170,88 @@ class UserCard extends StatelessWidget {
         return {
           'name': data['name'] ?? 'Name',
           'email': data['email'] ?? 'Email',
-          'role': data['role'] ?? 'student',
+          'role': data['role'] ?? 'admin',
         };
       } else {
-        return {'name': 'Name', 'email': 'No Email', 'role': 'student'};
+        return {'name': 'Student', 'email': 'student@gmail.com', 'role': 'student'};
       }
     } catch (e) {
       print('Error fetching user data: $e');
-      return {'name': 'Name', 'email': 'Email', 'role': 'student'};
+      return {'name': 'student', 'email': 'student@gmail.com', 'role': 'student'};
     }
   }
 
-  Future<void> _logout(BuildContext context) async {
-    await FirebaseAuth.instance.signOut();
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => LoginPage()), // Replace with actual login page
-    );
-  }
+@override
+Widget build(BuildContext context) {
+  return FutureBuilder<Map<String, String>>(
+    future: _fetchUserData(userId),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Center(child: CircularProgressIndicator());
+      } else if (snapshot.hasError) {
+        return Center(child: Text('Error loading user data'));
+      } else if (snapshot.hasData) {
+        final userData = snapshot.data!;
+        return Column(
+          children: [
+            Card(
+              color: Colors.blue[100], // Change the background color to blue
+              elevation: 3,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Colors.black,
+                      child: Icon(Icons.person, color: Colors.white, size: 20),
+                    ),
+                    SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          userData['name']!,
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          userData['email']!,
+                          style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.blue[50], // Keeping the container's color light blue
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                          child: Text(
+                            userData['role']!,
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+          ],
+        );
+      } else {
+        return Center(child: Text('No data available'));
+      }
+    },
+  );
+}
 
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, String>>(
-      future: _fetchUserData(userId),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
-        } else if (snapshot.hasError) {
-          return Text('Error loading user data');
-        } else if (snapshot.hasData) {
-          final userData = snapshot.data!;
-          return Column(
-            children: [
-              Card(
-                elevation: 3,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Colors.black,
-                        child: Icon(Icons.person, color: Colors.white, size: 20),
-                      ),
-                      SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            userData['name']!,
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Text(
-                            userData['email']!,
-                            style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          SizedBox(height: 8),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.blue[50],
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                            child: Text(
-                              userData['role']!,
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: () => _logout(context),
-                label: Text(
-                  'Logout',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24), backgroundColor: Colors.redAccent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  shadowColor: Colors.redAccent.withOpacity(0.5),
-                  elevation: 5,
-                ),
-              ),
-            ],
-          );
-        } else {
-          return Text('No data available');
-        }
-      },
-    );
-  }
+
+
 }
 
 
@@ -347,14 +333,7 @@ class MainMenu extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
-              child: Text(
-                'Main Menu',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
+           
             SidebarButton(
               icon: Icons.home,
               text: 'Dashboard',
@@ -378,6 +357,12 @@ class MainMenu extends StatelessWidget {
               text: 'Profile',
               isSelected: selectedContent == 'Profile', // Highlight if selected
               onTap: () => onMenuItemSelected('Profile'),
+            ),
+               SidebarButton(
+              icon: Icons.settings,
+              text: 'Settings',
+              isSelected: selectedContent == 'Settings', // Highlight if selected
+              onTap: () => onMenuItemSelected('Settings'),
             ),
           ],
         ),
@@ -407,19 +392,19 @@ class SidebarButton extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
         margin: EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.blue[100] : Colors.blue[50],  // Highlight selected
+          color: isSelected ? const Color.fromARGB(255, 177, 206, 227) : const Color.fromARGB(255, 255, 255, 255),  // Highlight selected
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
           children: [
             Icon(
               icon,
-              color: Colors.blue[700],
+              color: const Color.fromARGB(255, 43, 43, 44),
             ),
             SizedBox(width: 16),
             Text(
               text,
-              style: TextStyle(fontSize: 16, color: Colors.blue[700]),
+              style: TextStyle(fontSize: 16, color: const Color.fromARGB(255, 41, 41, 41)),
             ),
           ],
         ),
@@ -431,9 +416,13 @@ class SidebarButton extends StatelessWidget {
 class ContentArea extends StatelessWidget {
   final String selectedContent;
   final TextEditingController searchController;
-  final bool isLargeScreen;  // Accepting isLargeScreen
+  final bool isLargeScreen; // Accepting isLargeScreen
 
-  const ContentArea({required this.selectedContent, required this.searchController, required this.isLargeScreen});
+  const ContentArea({
+    required this.selectedContent,
+    required this.searchController,
+    required this.isLargeScreen,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -460,14 +449,92 @@ class ContentArea extends StatelessWidget {
   Widget _buildContent(String selectedContent) {
     switch (selectedContent) {
       case 'Dashboard':
+        return DashboardScreengraph();
+      case 'gtec':
+        return DashboardScreengraph();
+      case 'Course Content':
         return UserAllocatedCoursesPage();
-      case 'Course Management':
-        return UserAllocatedCoursesPage();
-         case 'Live Classes':
+      case 'Live Classes':
         return UserLiveViewPage();
-      
       default:
-        return UserAllocatedCoursesPage();
+        return DashboardScreengraph();
     }
+  }
+}
+
+class Bottoms extends StatefulWidget {
+  final Function(String) onMenuItemSelected;
+  final bool isLargeScreen;
+
+  const Bottoms({
+    Key? key,
+    required this.onMenuItemSelected,
+    required this.isLargeScreen,
+  }) : super(key: key);
+
+  @override
+  _BottomsState createState() => _BottomsState();
+}
+
+class _BottomsState extends State<Bottoms> {
+  String selectedMenu = '';
+  bool isLoading = false;
+
+  void updateSelectedMenu(String newMenu) {
+    setState(() {
+      selectedMenu = newMenu;
+    });
+    widget.onMenuItemSelected(newMenu);
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+      
+      await FirebaseAuth.instance.signOut();
+      
+      if (!mounted) return;
+      
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => LoginPage()),
+        (Route<dynamic> route) => false,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error logging out: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+         
+          SidebarButton(
+            icon: Icons.logout,
+            text: isLoading ? 'Logging out...' : 'Log out',
+            isSelected: selectedMenu == 'Log out',
+            onTap: () => _logout(context),  // Fixed: Properly calling _logout with context
+          ),
+        ],
+      ),
+    );
   }
 }
