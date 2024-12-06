@@ -43,6 +43,50 @@ class LoginPage extends StatelessWidget {
     }
   }
 
+  Future<void> _resetPassword(BuildContext context) async {
+    final TextEditingController emailController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reset Password'),
+        content: TextField(
+          controller: emailController,
+          decoration: const InputDecoration(hintText: 'Enter your email'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              final email = emailController.text.trim();
+              if (email.isNotEmpty) {
+                try {
+                  await _auth.sendPasswordResetEmail(email: email);
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Password reset email sent to $email')),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: ${e.toString()}')),
+                  );
+                }
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please enter an email.')),
+                );
+              }
+            },
+            child: const Text('Send'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -191,10 +235,19 @@ class LoginPage extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                             ),
                             child: const Text(
-                              'Register Now',
+                              'Don’t have an account? Sign Up?',
                               style: TextStyle(fontSize: 16),
                             ),
                           ),
+                                                    const SizedBox(height: 16),
+
+                           TextButton(
+                                onPressed: () => _resetPassword(context),
+                                child: const Text(
+                                  'Forgot Password?',
+                                  style: TextStyle(color: Colors.white, fontSize: 14),
+                                ),
+                              ),
                         ],
                       ),
                     ),
