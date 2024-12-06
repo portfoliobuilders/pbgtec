@@ -353,12 +353,12 @@ class _AdminCourseState extends State<AdminCourse> {
                                     height: isDesktop ? 160 : 120,
                                     color: Color.fromARGB(255, 0, 86, 156),
                                     child: Center(
-                                      // child: Image.asset(
-                                      //   'assets/sap.png',
-                                      //   width: 100,
-                                      //   height: 100,
-                                      //   fit: BoxFit.contain,
-                                      // ),
+                                      child: Image.asset(
+                                        'assets/gol.png',
+                                        width: 100,
+                                        height: 100,
+                                        fit: BoxFit.contain,
+                                      ),
                                     ),
                                   ),
                                 ),
