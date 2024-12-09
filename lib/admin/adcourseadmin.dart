@@ -16,10 +16,10 @@ class _AdminCourseState extends State<AdminCourse> {
 
   // List of asset image paths
   final List<String> courseImages = [
-    'assets/gol.png',
-    'assets/gtech.png',
-    'assets/gol.png',
-    'assets/gtech.jpg',
+    'assets/golblack.png',
+    'assets/golblack.png',
+    'assets/golwhite.png',
+    'assets/golblack.png',
   ];
 
   Future<void> _addCourse(String name, String description) async {
@@ -354,7 +354,7 @@ class _AdminCourseState extends State<AdminCourse> {
                                     color: Color.fromARGB(255, 0, 86, 156),
                                     child: Center(
                                       child: Image.asset(
-                                        'assets/gol.png',
+                                        'assets/sap.png',
                                         width: 100,
                                         height: 100,
                                         fit: BoxFit.contain,

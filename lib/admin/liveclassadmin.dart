@@ -6,10 +6,10 @@ class AdminLiveClassesPage extends StatelessWidget {
 
   /// List of asset image paths to be used in course cards.
   final List<String> assetImages = [
-   'assets/gol.png',
-    'assets/gtech.png',
-    'assets/gol.png',
-    'assets/gtech.jpg',
+   'assets/golblack.png',
+    'assets/golblack.png',
+    'assets/golblack.png',
+    'assets/golblack.png',
   ];
 
   /// Fetches all courses from Firestore as a stream.

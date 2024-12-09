@@ -86,9 +86,9 @@ class RegistrationPage extends StatelessWidget {
                           children: [
                             Row(
                               children: [
-                                Image.asset('assets/gtech.png', height: 60, width: 60),
-                                const SizedBox(width: 8),
-                                Image.asset('assets/gol.png', height: 80),
+                               Image.asset('assets/gtecwhite.png', height: 60, width: 60),
+                              const SizedBox(width: 8),
+                              Image.asset('assets/golwhite.png', height: 60),
                               ],
                             ),
                             const SizedBox(height: 12),
