@@ -97947,9 +97947,9 @@ A.dk(new A.bZ(s,r,"flutter web plugins",p,null,!1))}},
 $S:31}
 A.apt.prototype={}
 A.Bo.prototype={
-af(){var s=$.aF,r=(s==null?$.aF=$.bQ():s).bM("[DEFAULT]")
-A.aW(r,$.c5(),!0)
-return new A.IQ(A.ds(new A.by(r)),A.b(["assets/gol.png","assets/gtech.png","assets/gol.png","assets/gtech.jpg"],t.s))}}
+af(){var s="assets/golblack.png",r=$.aF,q=(r==null?$.aF=$.bQ():r).bM("[DEFAULT]")
+A.aW(q,$.c5(),!0)
+return new A.IQ(A.ds(new A.by(q)),A.b([s,s,"assets/golwhite.png",s],t.s))}}
 A.IQ.prototype={
 yE(a,b){return this.a8P(a,b)},
 a8P(a,b){var s=0,r=A.t(t.H),q=1,p,o=this,n,m,l,k,j
@@ -98027,7 +98027,7 @@ k=e?200:160
 i=new A.az(10,10)
 h=e?160:120
 g=A.U(255,0,86,156)
-h=A.bn(f,new A.f2(B.W,f,f,A.pA("assets/gol.png",B.n8,100,100),f),B.o,g,f,f,f,h,f,f,f,f,f,1/0)
+h=A.bn(f,new A.f2(B.W,f,f,A.pA("assets/sap.png",B.n8,100,100),f),B.o,g,f,f,f,h,f,f,f,f,f,1/0)
 q[o]=A.fJ(f,A.bn(f,new A.lE(f,f,4,new A.bG(new A.c2(i,i,i,i),B.p),f,A.ba(A.b([new A.Co(new A.c2(new A.az(10,10),new A.az(10,10),B.r,B.r),B.bi,h,f),new A.Dj(1,B.kC,new A.aX(B.fc,A.bO(A.b([A.a7("SAP Cloud",f,f,f,new A.w(!0,B.cx,f,f,f,f,12,f,f,f,f,f,f,f,f,f,f,f,f,f,f,f,f,f,f,f),f,f),A.i5(f,f,A.dC(B.p4,B.cx,f,18),f,new A.ay3(),f,f,f,f)],b),B.t,B.b9,B.n),f),f)],b),B.t,B.l,B.n),f),B.o,f,f,f,f,k,f,f,f,f,f,l),B.J,!1,f,f,f,f,f,f,f,f,f,f,f,f,f,new A.ay4(),f,f,f,f,f,f)}l=A.Iy(q,10,10)
 k=A.b([A.cC(!1,A.a7("Prev",f,f,f,f,f,f),f,f,B.D,f,f,f,f,new A.ay5(),f,A.qw(f,f,f,f,f,f,f,f,f,B.m,f,f,f,f,f,f,f,f,f))],b)
 q=J.kF(3,r)
@@ -98478,12 +98478,12 @@ return A.fJ(r,A.bn(r,A.EA(new A.af(16,0,16,0),n,r,r,A.a7(s.d,r,r,r,A.bt(r,r,q?B.
 A.PA.prototype={
 F(a){var s=null,r=this.c
 return new A.aX(new A.af(16,16,16,16),A.ba(A.b([A.a7(r,s,s,s,A.bt(s,s,B.jW,s,s,s,s,s,s,s,s,24,s,s,B.Z,s,s,!0,s,s,s,s,s,s,s,s),s,s),A.ca(s,20,s),A.db(this.aaZ(r),1)],t.p),B.F,B.l,B.n),s)},
-aaZ(a){var s=null
+aaZ(a){var s=null,r="assets/golblack.png"
 switch(a){case"Course Content":return new A.wN(s)
 case"Course Management":return new A.Bo(s)
 case"Students Manager":return new A.Bp(s)
 case"Our Centers":return new A.qt(s)
-case"live":return new A.O1(A.b(["assets/gol.png","assets/gtech.png","assets/gol.png","assets/gtech.jpg"],t.s),s)
+case"live":return new A.O1(A.b([r,r,r,r],t.s),s)
 case"Dashboard":return new A.wN(s)
 default:return new A.wN(s)}}}
 A.C2.prototype={
@@ -99839,7 +99839,7 @@ A.ajT.prototype={
 $2(a,b){var s,r,q,p,o=null,n=b.b,m=n>800,l=m?n*0.4:n*0.8,k=m?n*0.2:0
 n=this.a
 s=t.p
-r=A.bO(A.b([A.pA("assets/gtech.png",o,60,60),B.iW,A.pA("assets/gol.png",o,80,o)],s),B.t,B.l,B.n)
+r=A.bO(A.b([A.pA("assets/gtecwhite.png",o,60,60),B.iW,A.pA("assets/golwhite.png",o,60,o)],s),B.t,B.l,B.n)
 q=B.c.ah(229.5)
 p=A.U(q,255,255,255)
 p=A.Wx(n.d,A.tC(o,new A.eO(4,A.br(8),B.d6),o,o,o,o,o,o,!0,o,o,o,o,o,o,p,!0,o,o,o,o,o,o,o,o,o,o,o,o,o,o,o,o,o,o,o,o,o,o,o,o,o,o,o,o,o,o,o,o,o,o,o,o),!1,B.fW,new A.ajO())
@@ -99927,7 +99927,7 @@ A.aqF.prototype={
 $2(a,b){var s,r,q,p,o,n=null,m=b.b,l=m>800?m*0.4:m*0.8
 m=this.a
 s=t.p
-r=A.bO(A.b([A.pA("assets/gtech.png",n,60,60),B.iW,A.pA("assets/gol.png",n,80,n)],s),B.t,B.l,B.n)
+r=A.bO(A.b([A.pA("assets/gtecwhite.png",n,60,60),B.iW,A.pA("assets/golwhite.png",n,60,n)],s),B.t,B.l,B.n)
 q=B.c.ah(229.5)
 p=A.U(q,255,255,255)
 p=A.Wx(m.f,A.tC(n,new A.eO(4,A.br(8),B.d6),n,n,n,n,n,n,!0,n,n,n,n,n,n,p,!0,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n),!1,B.fW,new A.aqA())
